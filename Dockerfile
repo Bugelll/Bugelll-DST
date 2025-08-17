@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=debian:buster-slim
+ARG BASE_IMAGE=debian:bullseye-slim
 FROM $BASE_IMAGE
 LABEL maintainer="James Swineson <docker@public.swineson.me>"
 
@@ -15,7 +15,14 @@ ARG DST_USER_DATA_PATH=/data
 # install packages
 RUN dpkg --add-architecture i386 \
     && apt-get update -y \
-    && apt-get install -y --no-install-recommends ca-certificates lib32stdc++6 libcurl3-gnutls:i386 libcurl3-gnutls wget tar supervisor \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        lib32stdc++6 \
+        libcurl4-gnutls-dev:i386 \
+        libcurl4-gnutls-dev \
+        wget \
+        tar \
+        supervisor \
     && (apt-get install -y --no-install-recommends lib32gcc-s1 || apt-get install -y --no-install-recommends lib32gcc1) \
     && apt-get autoremove -y \
     && apt-get clean -y \
@@ -23,9 +30,8 @@ RUN dpkg --add-architecture i386 \
 
 # create data directory
 RUN mkdir -p "${DST_USER_DATA_PATH}" \
-    # Add unprivileged user
     && ( groupadd "${DST_GROUP}" || true ) \
-    && ( useradd -g "${DST_GROUP}" -d "${DST_USER_DATA_PATH}" "${DST_USER}" || true )\
+    && ( useradd -g "${DST_GROUP}" -d "${DST_USER_DATA_PATH}" "${DST_USER}" || true ) \
     && chown -R "${DST_USER}:${DST_GROUP}" "${DST_USER_DATA_PATH}"
 
 # install steamcmd only if steamcmd doesn't exist
